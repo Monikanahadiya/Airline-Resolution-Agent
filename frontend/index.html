@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Airline Disruption Resolution Agent</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Flight Support</h1>
+      <p class="subtitle">Airline Disruption Resolution Agent — prototype</p>
+    </header>
+
+    <div class="pnr-bar">
+      <label for="pnr-input">Booking Reference (PNR)</label>
+      <select id="pnr-input">
+        <option value="SK4821X">SK4821X — Priya Nair</option>
+        <option value="TR1190B">TR1190B — Arvind Kulkarni</option>
+        <option value="WL7742">WL7742 — Meher Kaur</option>
+      </select>
+    </div>
+
+    <div id="escalation-banner" class="escalation-banner hidden">
+      ⚠️ This request has been escalated to a human agent.
+    </div>
+
+    <div id="chat-window" class="chat-window"></div>
+
+    <form id="chat-form" class="chat-form">
+      <input
+        id="message-input"
+        type="text"
+        placeholder="Type a message as the customer..."
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="chat.js"></script>
+</body>
+</html>

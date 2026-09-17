@@ -1,0 +1,176 @@
+{
+  "exercise_date": "2026-09-23",
+  "customers": [
+    {
+      "name": "Priya Nair",
+      "loyalty_tier": "Gold",
+      "pnr": "SK4821X",
+      "contact": {
+        "email": "priya.nair@example.com",
+        "phone": "+91-98xxxxxxx1"
+      },
+      "travel_history_12mo": {
+        "flights": 6,
+        "prior_complaints": [
+          { "issue": "delayed baggage", "resolution": "voucher" }
+        ]
+      }
+    },
+    {
+      "name": "Arvind Kulkarni",
+      "loyalty_tier": "Silver",
+      "pnr": "TR1190B",
+      "contact": {
+        "email": "arvind.kulkarni@example.com",
+        "phone": "+91-98xxxxxxx2"
+      },
+      "travel_history_12mo": {
+        "flights": 3,
+        "prior_complaints": []
+      }
+    },
+    {
+      "name": "Meher Kaur",
+      "loyalty_tier": "Platinum",
+      "pnr": "WL7742",
+      "contact": {
+        "email": "meher.kaur@example.com",
+        "phone": "+91-98xxxxxxx3"
+      },
+      "travel_history_12mo": {
+        "flights": 10,
+        "prior_complaints": [
+          { "issue": "overbooking", "resolution": "tier-status upgrade" }
+        ]
+      }
+    }
+  ],
+
+  "bookings": [
+    {
+      "customer": "Priya Nair",
+      "pnr": "SK4821X",
+      "flight": "SK-204",
+      "route": "Delhi -> Goa",
+      "date": "2026-09-23",
+      "scheduled_departure": "18:40",
+      "status": "cancelled",
+      "status_reason": "operational reasons",
+      "delay_hours": null
+    },
+    {
+      "customer": "Priya Nair",
+      "pnr": "SK4821X",
+      "flight": "Return",
+      "route": "Goa -> Delhi",
+      "date": "2026-09-25",
+      "scheduled_departure": "16:20",
+      "status": "unaffected",
+      "status_reason": null,
+      "delay_hours": 0
+    },
+    {
+      "customer": "Arvind Kulkarni",
+      "pnr": "TR1190B",
+      "flight": "SK-118",
+      "route": "Mumbai -> Bengaluru",
+      "date": "2026-09-23",
+      "scheduled_departure": "07:10",
+      "status": "delayed",
+      "new_departure": "11:10",
+      "delay_hours": 4
+    },
+    {
+      "customer": "Meher Kaur",
+      "pnr": "WL7742",
+      "flight": "SK-305",
+      "route": "Delhi -> Hyderabad",
+      "date": "2026-09-23",
+      "scheduled_departure": "14:00",
+      "status": "delayed",
+      "new_departure": "20:00",
+      "delay_hours": 6
+    }
+  ],
+
+  "service_rules": {
+    "cancellation_rebooking": {
+      "trigger": "flight cancelled by airline",
+      "entitlement": "free rebooking on next available flight within 24 hours, OR full refund",
+      "customer_choice": true
+    },
+    "delay_compensation": [
+      { "condition": "delay < 3 hours", "compensation": ["meal voucher (₹500)"] },
+      { "condition": "delay > 3 hours", "compensation": ["meal voucher", "lounge access"] },
+      { "condition": "delay > 5 hours", "compensation": ["meal voucher", "lounge access", "hotel accommodation (delayed-hours portion only, not a full night)"] }
+    ],
+    "refund_processing": {
+      "applies_to": "airline-caused cancellations",
+      "timeline": "within 7 business days",
+      "payment_method": "original payment method only"
+    },
+    "fare_difference": {
+      "applies_to": "voluntary rebooking to higher fare (not airline-caused)",
+      "customer_pays_difference": true,
+      "agent_waiver_limit_inr": 1500,
+      "above_limit": "requires supervisor approval -> escalate"
+    },
+    "loyalty_tier": {
+      "gold_platinum": "priority rebooking (first access to next-available seats) only",
+      "no_extra_compensation_beyond_standard_policy": true
+    }
+  },
+
+  "agent_actions": {
+    "allowed": [
+      "rebook_customer_next_available_flight_24h_no_charge",
+      "issue_meal_voucher",
+      "issue_lounge_access",
+      "arrange_hotel_delayed_hours_portion",
+      "initiate_refund_airline_caused_cancellation",
+      "provide_own_booking_and_flight_status_info"
+    ],
+    "prohibited_must_escalate": [
+      "approve_compensation_beyond_stated_policy",
+      "waive_fare_difference_above_1500_inr",
+      "make_exception_for_non_airline_caused_disruption",
+      "handle_threat_of_legal_action_or_formal_complaint",
+      "process_refund_to_different_payment_method"
+    ]
+  },
+
+  "test_scenarios": [
+    {
+      "id": "scenario_1_priya",
+      "customer": "Priya Nair",
+      "pnr": "SK4821X",
+      "situation": "Flight SK-204 (Delhi->Goa) cancelled, operational reasons. Mid-conversation she also demands full cash refund PLUS a free business-class upgrade on her return flight 'for the trouble'.",
+      "expected_agent_behavior": {
+        "in_policy": "offer free rebooking on next available flight within 24h OR full refund (her choice)",
+        "escalate": "the free business-class upgrade request — this is compensation beyond stated policy"
+      }
+    },
+    {
+      "id": "scenario_2_arvind",
+      "customer": "Arvind Kulkarni",
+      "pnr": "TR1190B",
+      "situation": "Flight SK-118 delayed 4 hours. He asks for hotel accommodation 'since it's been such a long delay'.",
+      "expected_agent_behavior": {
+        "in_policy": "meal voucher + lounge access (4h falls in the '>3 hours' band, not '>5 hours')",
+        "deny_in_policy_not_escalate": "hotel accommodation — 4h does not meet the >5h threshold; this is a policy-based no, not an escalation"
+      }
+    },
+    {
+      "id": "scenario_3_meher",
+      "customer": "Meher Kaur",
+      "pnr": "WL7742",
+      "situation": "Flight SK-305 delayed 6 hours. She asks for a FULL NIGHT hotel stay (not just delayed-hours coverage), and separately asks to move to a different, higher-fare flight where the fare difference is ₹2,000.",
+      "expected_agent_behavior": {
+        "in_policy": "meal voucher + lounge access + hotel accommodation, but only for the delayed-hours portion, not a full night",
+        "escalate": "the ₹2,000 fare-difference waiver request — exceeds the ₹1,500 agent authority limit"
+      }
+    }
+  ],
+
+  "grounding_rule": "The agent must never invent policy, pricing, or customer data not present in this file. Any request the agent cannot resolve from this data must be escalated to a human agent rather than answered speculatively."
+}
